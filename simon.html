@@ -12,35 +12,35 @@
       text-align: center;
       margin: 0;
       padding: 0;
-      position: relative;
-      min-height: 100vh;
     }
     h1 {
       margin-top: 20px;
     }
     #game-board {
+      position: relative;
       display: grid;
       grid-template-columns: repeat(3, 100px);
       grid-template-rows: repeat(3, 100px);
       gap: 10px;
       justify-content: center;
       margin: 20px auto;
-      position: relative;
-      z-index: 1;
+      width: 330px; /* 3*100 + 2*10 gap */
+      height: 330px;
     }
     .tile {
       width: 100px;
       height: 100px;
       border-radius: 15px;
       opacity: 0.7;
-      transition: background 0.2s, opacity 0.2s, filter 0.2s, box-shadow 0.2s;
+      transition: background 0.2s, opacity 0.2s, filter 0.2s, box-shadow 0.3s;
       cursor: pointer;
+      user-select: none;
     }
     .active {
       opacity: 1 !important;
-      filter: brightness(0.6) saturate(1.5);
-      box-shadow: 0 0 15px 5px white;
-      border: 3px solid white;
+      filter: brightness(0.4) saturate(1.8);
+      box-shadow: 0 0 20px 6px white;
+      border: 2px solid white;
     }
     #info {
       margin-top: 20px;
@@ -65,10 +65,9 @@
     /* Bandeau game over */
     #game-over-overlay {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 330px; /* 3 tiles * 100px + 2*10px gap */
-      height: 330px; /* idem */
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
       background: rgba(50, 50, 50, 0.85);
       border-radius: 15px;
       display: flex;
@@ -76,21 +75,15 @@
       justify-content: center;
       align-items: center;
       color: white;
-      font-size: 24px;
+      font-size: 26px;
       font-weight: bold;
       z-index: 10;
       user-select: none;
       visibility: hidden;
-      margin: auto;
-      /* center overlay exactly on #game-board */
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 20px 5px #777;
     }
     #game-over-overlay button {
       margin-top: 20px;
-      padding: 10px 25px;
+      padding: 12px 30px;
       font-size: 18px;
       border: none;
       border-radius: 8px;
@@ -111,10 +104,10 @@
     <p>Meilleur score: <span id="highscore">0</span></p>
   </div>
   <div id="game-board">
-    <!-- Les 9 cases seront créées par JS -->
+    <!-- Les 9 cases seront générées ici -->
     <div id="game-over-overlay">
-      <div id="game-over-text">Game Over !</div>
-      <div id="final-score" style="margin-top:10px; font-size:20px;"></div>
+      <div>Game Over !</div>
+      <div id="final-score" style="margin-top: 10px; font-size: 20px;"></div>
       <button id="overlay-restart">Recommencer</button>
     </div>
   </div>
@@ -125,7 +118,9 @@
   <div id="ads">Zone publicitaire</div>
 
   <script>
+    // 9 couleurs
     const colors = ["red", "blue", "green", "yellow", "orange", "purple", "cyan", "lime", "pink"];
+    // 9 sons différents (tu peux changer les urls si tu veux)
     const soundUrls = [
       "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg",
       "https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg",
@@ -152,7 +147,7 @@
     const finalScoreElem = document.getElementById("final-score");
     const overlayRestartBtn = document.getElementById("overlay-restart");
 
-    // Création des cases
+    // Création des 9 cases + sons
     colors.forEach((color, i) => {
       const tile = document.createElement("div");
       tile.classList.add("tile");
@@ -231,7 +226,7 @@
         document.getElementById("highscore").textContent = highScore;
       }
       showGameOver(score);
-      resetGame();
+      // Ne reset pas immédiatement la partie pour que l'utilisateur voie le score
     }
 
     function showGameOver(score) {
@@ -243,13 +238,13 @@
       overlay.style.visibility = "hidden";
     }
 
-    // Bouton Recommencer dans le bandeau game over
+    // Recommencer depuis le bandeau
     overlayRestartBtn.addEventListener("click", () => {
       resetGame();
       nextRound();
     });
 
-    // Boutons classiques start/restart
+    // Boutons start/restart classiques
     document.getElementById("start").onclick = () => {
       resetGame();
       nextRound();
