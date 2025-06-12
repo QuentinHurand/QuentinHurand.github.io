@@ -162,12 +162,11 @@
       if (o.y > HEIGHT) {
         score++;
         scoreDisplay.textContent = `Score : ${score}`;
-        function updateDifficulty(score) {
-  speed = 3 + score * 0.3;
-  interval = Math.max(300, 1500 - score * 50);
-  maxObstacles = Math.min(25, 2 + Math.floor(score / 2));
-}
-
+        updateDifficulty(score);
+        return false;
+      }
+      return true;
+    });
 
     // Collisions
     for (let o of obstacles) {
@@ -177,11 +176,18 @@
     }
   }
 
+
   function updateDifficulty(score) {
-    if (interval > 500) interval -= 0.5;
-    if (speed < 12) speed += 0.01;
-    maxObstacles = Math.min(10, 2 + Math.floor(score / 10));
-  }
+  // Augmente fortement la vitesse (jusqu'à 18)
+  speed = Math.min(18, 3 + score * 0.5);
+
+  // Réduit l'intervalle de spawn très rapidement (jusqu'à 200ms)
+  interval = Math.max(200, 1500 - score * 100);
+
+  // Augmente plus vite le nombre d'obstacles (jusqu'à 25)
+  maxObstacles = Math.min(25, 3 + Math.floor(score / 2));
+}
+
 
   function drawRect(x, y, w, h, color, glow) {
     ctx.fillStyle = color;
