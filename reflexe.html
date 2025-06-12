@@ -1,273 +1,136 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2545350053064615"
-     crossorigin="anonymous"></script>
-  
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Jeu de Réflexe - Classement local</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Test de Réflexe</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-    #gameZone {
-      margin: 20px auto;
-      border: 2px solid #000;
-      width: 300px;
-      height: 300px;
-      position: relative;
-      background: #f0f0f0;
-      cursor: pointer;
-      user-select: none;
-      font-size: 2rem;
-      line-height: 300px;
-      color: #333;
-      /* Centrer le texte verticalement et horizontalement */
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
     }
-    #target {
-      width: 50px;
-      height: 50px;
-      background: green;
-      position: absolute;
-      border-radius: 4px;
-      display: none;
-      z-index: 10;
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: #00ffcc;
+    }
+
+    #message {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #ffd700;
+    }
+
+    #startButton {
+      padding: 15px 30px;
+      font-size: 1.5rem;
+      background-color: #1e90ff;
+      color: white;
+      border: none;
+      border-radius: 10px;
       cursor: pointer;
+      transition: background 0.3s;
     }
-    #leaderboard {
-      margin-top: 40px;
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: left;
+
+    #startButton:hover {
+      background-color: #00bfff;
     }
-    .ad-space {
-      margin: 20px auto;
-      padding: 10px;
-      background: #f9f9f9;
-      min-height: 100px;
-      max-width: 320px;
-    }
-    #restartBtn {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 10px 20px;
+
+    #score {
+      margin-top: 30px;
       font-size: 1.2rem;
-      display: none;
-      cursor: pointer;
-      z-index: 20;
+      color: #aaa;
     }
-    #scoresList li.user-score {
-      color: blue;
-      font-weight: bold;
+
+    #backMenu {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 15px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    #backMenu:hover {
+      background-color: #444;
     }
   </style>
 </head>
 <body>
+  <button id="backMenu" onclick="location.href='index.html'">← Menu</button>
+  <h1>⚡ Test de Réflexe</h1>
+  <div id="message">Clique sur le bouton quand il devient vert !</div>
+  <button id="startButton" disabled>En attente...</button>
+  <div id="score">Ton meilleur temps : <span id="bestTime">-</span> ms</div>
 
-  <h1>⚡ Jeu de Réflexe</h1>
+  <script>
+    const pseudo = "Toi";
+    const startButton = document.getElementById("startButton");
+    const message = document.getElementById("message");
+    const bestTimeSpan = document.getElementById("bestTime");
 
-  <!-- ENCADRE PUBLICITAIRE - ici tu colles le code fourni par Google AdSense -->
-  <div class="ad-space" id="ad-top">
-    <!-- Exemple : -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-      crossorigin="anonymous"></script>
-    <ins class="adsbygoogle"
-      style="display:block"
-      data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
-      data-ad-slot="1234567890"
-      data-ad-format="auto"
-      data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-  </div>
+    let startTime;
+    let timeout;
 
-  <div>
-    <label for="pseudo">Entrez votre pseudo :</label>
-    <input type="text" id="pseudo" placeholder="Votre pseudo" />
-    <button onclick="startGame()">Commencer</button>
-  </div>
-
-  <div id="gameZone">
-    <!-- Message initial affiché -->
-    Prêt ? Partez !
-    <div id="target"></div>
-    <button id="restartBtn" onclick="startGame()">Recommencer</button>
-  </div>
-
-  <h2>Temps de réaction : <span id="reactionTime">-</span> ms</h2>
-
-  <!-- ENCADRE PUBLICITAIRE - deuxième emplacement -->
-  <div class="ad-space" id="ad-bottom">
-    <!-- Même principe, tu colles ici un autre code AdSense différent si tu veux -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-      crossorigin="anonymous"></script>
-    <ins class="adsbygoogle"
-      style="display:block"
-      data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
-      data-ad-slot="0987654321"
-      data-ad-format="auto"
-      data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-  </div>
-
-  <div id="leaderboard">
-    <h2>🏆 Classement local </h2>
-    <ol id="scoresList"></ol>
-  </div>
-
-<script>
-  // Données fixes : célébrités avec leurs scores (temps en ms)
-  const celebrities = [
-    {pseudo: 'Lewis Hamilton', score: 450},
-    {pseudo: 'Serena Williams', score: 480},
-    {pseudo: 'Michael Jordan', score: 520},
-    {pseudo: 'Usain Bolt', score: 430},
-    {pseudo: 'Marie Curie', score: 650},
-    {pseudo: 'Albert Einstein', score: 700},
-    {pseudo: 'Beyoncé', score: 600},
-    {pseudo: 'Cristiano Ronaldo', score: 500},
-    {pseudo: 'Simone Biles', score: 470},
-    {pseudo: 'Elon Musk', score: 720},
-  ];
-
-  const pseudoInput = document.getElementById('pseudo');
-  const gameZone = document.getElementById('gameZone');
-  const target = document.getElementById('target');
-  const reactionTimeDisplay = document.getElementById('reactionTime');
-  const scoresList = document.getElementById('scoresList');
-  const restartBtn = document.getElementById('restartBtn');
-
-  let startTime = 0;
-  let timeoutId = null;
-  let currentUserBestScore = null;
-
-  function updateLeaderboard(userPseudo, userScore) {
-    const list = [...celebrities];
-    const toiIndex = list.findIndex(item => item.pseudo.startsWith('Toi'));
-    if (toiIndex !== -1) {
-      list[toiIndex].score = userScore;
-    } else {
-      list.push({pseudo: 'Toi (' + userPseudo + ')', score: userScore});
-    }
-    list.sort((a, b) => a.score - b.score);
-    scoresList.innerHTML = '';
-    list.forEach(({pseudo, score}) => {
-      const li = document.createElement('li');
-      li.textContent = `${pseudo} — ${score} ms`;
-      if (pseudo.startsWith('Toi')) {
-        li.classList.add('user-score');
+    function loadBestScore() {
+      const best = localStorage.getItem("bestScore_" + pseudo);
+      if (best) {
+        bestTimeSpan.textContent = best;
+      } else {
+        bestTimeSpan.textContent = "-";
       }
-      scoresList.appendChild(li);
+    }
+
+    function setRandomDelay() {
+      const delay = Math.floor(Math.random() * 5000) + 2000; // 2 à 7 secondes
+      startButton.disabled = true;
+      startButton.style.backgroundColor = "#1e90ff";
+      message.textContent = "Prépare-toi...";
+
+      timeout = setTimeout(() => {
+        startButton.disabled = false;
+        startButton.textContent = "Clique !";
+        startButton.style.backgroundColor = "green";
+        startTime = Date.now();
+      }, delay);
+    }
+
+    startButton.addEventListener("click", () => {
+      if (startButton.disabled) return;
+
+      const reactionTime = Date.now() - startTime;
+      message.textContent = `⏱ Temps de réaction : ${reactionTime} ms`;
+
+      // Meilleur score
+      const best = localStorage.getItem("bestScore_" + pseudo);
+      if (!best || reactionTime < best) {
+        localStorage.setItem("bestScore_" + pseudo, reactionTime);
+        bestTimeSpan.textContent = reactionTime;
+      }
+
+      // Prépare la prochaine tentative
+      startButton.textContent = "En attente...";
+      startButton.disabled = true;
+      startButton.style.backgroundColor = "#1e90ff";
+      setTimeout(setRandomDelay, 2000);
     });
-  }
 
-  window.onload = () => {
-    const pseudo = pseudoInput.value.trim();
-    let userBest = null;
-    if (pseudo) {
-      const savedScore = localStorage.getItem('bestScore_' + pseudo.toLowerCase());
-      userBest = savedScore ? parseInt(savedScore, 10) : null;
-    }
-    updateLeaderboard('Toi', userBest ?? 99999);
-  };
-
-  function startGame() {
-    const pseudo = pseudoInput.value.trim();
-    if (!pseudo) {
-      alert('Veuillez entrer un pseudo.');
-      return;
-    }
-
-    // Reset affichage et message initial
-    reactionTimeDisplay.textContent = '-';
-    target.style.display = 'none';
-    restartBtn.style.display = 'none';
-    gameZone.style.borderColor = '#000';
-    gameZone.textContent = 'Prêt ? Partez !';
-    gameZone.appendChild(target);
-    gameZone.appendChild(restartBtn);
-
-    const savedScore = localStorage.getItem('bestScore_' + pseudo.toLowerCase());
-    currentUserBestScore = savedScore ? parseInt(savedScore, 10) : null;
-
-    clearTimeout(timeoutId);
-
-    // Clignotement bordure pendant 1.5s
-    let visible = true;
-    let blinkCount = 0;
-    const maxBlinks = 3;
-
-    const blinkInterval = setInterval(() => {
-      gameZone.style.borderColor = visible ? 'red' : '#000';
-      visible = !visible;
-      blinkCount++;
-      if (blinkCount >= maxBlinks) {
-        clearInterval(blinkInterval);
-        gameZone.style.borderColor = '#000';
-
-        // Efface le message et lance le délai aléatoire
-        gameZone.textContent = '';
-        gameZone.appendChild(target);
-        gameZone.appendChild(restartBtn);
-
-        const delay = Math.random() * 4000 + 1000;
-        timeoutId = setTimeout(() => {
-          const maxX = gameZone.clientWidth - target.offsetWidth;
-          const maxY = gameZone.clientHeight - target.offsetHeight;
-          const x = Math.random() * maxX;
-          const y = Math.random() * maxY;
-
-          target.style.left = x + 'px';
-          target.style.top = y + 'px';
-          target.style.display = 'block';
-
-          startTime = performance.now();
-        }, delay);
-      }
-    }, 500);
-  }
-
-  target.addEventListener('click', () => {
-    const endTime = performance.now();
-    const reaction = Math.round(endTime - startTime);
-
-    reactionTimeDisplay.textContent = reaction + ' ms';
-    target.style.display = 'none';
-
-    const pseudo = pseudoInput.value.trim();
-    if (!pseudo) return;
-
-    if (currentUserBestScore === null || reaction < currentUserBestScore) {
-      currentUserBestScore = reaction;
-      localStorage.setItem('bestScore_' + pseudo.toLowerCase(), currentUserBestScore);
-    }
-
-    updateLeaderboard(pseudo, currentUserBestScore);
-
-    restartBtn.style.display = 'block';
-  });
-</script>
-
-<button onclick="window.location.href='index.html'" style="
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  padding: 10px 20px;
-  font-size: 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  z-index: 9999;
-">🏠 Menu</button>
-
-
-  
+    // Lancement initial
+    loadBestScore();
+    setTimeout(setRandomDelay, 1000);
+  </script>
 </body>
 </html>
