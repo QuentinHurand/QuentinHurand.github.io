@@ -112,25 +112,24 @@
     </div>
   </div>
   <button id="start">Démarrer</button>
-  <button id="restart">Recommencer</button>
   <br />
   <a href="index.html"><button>Retour au Menu</button></a>
   <div id="ads">Zone publicitaire</div>
 
   <script>
-    // 9 couleurs
     const colors = ["red", "blue", "green", "yellow", "orange", "purple", "cyan", "lime", "pink"];
-    // 9 sons différents (tu peux changer les urls si tu veux)
+
+    // 9 sons distincts, différents URLs bien répartis et variés
     const soundUrls = [
       "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg",
       "https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg",
       "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
       "https://actions.google.com/sounds/v1/cartoon/pop.ogg",
       "https://actions.google.com/sounds/v1/cartoon/metal_thud.ogg",
-      "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
-      "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg",
-      "https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg",
-      "https://actions.google.com/sounds/v1/cartoon/pop.ogg"
+      "https://actions.google.com/sounds/v1/cartoon/robot_blip.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/slide_whistle_to_drum_hit.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/swish.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/clang.ogg"
     ];
 
     const sounds = {};
@@ -155,6 +154,7 @@
       tile.dataset.index = i;
       board.appendChild(tile);
 
+      // Charge et stocke l'audio
       const audio = new Audio(soundUrls[i]);
       sounds[i] = audio;
 
@@ -226,7 +226,6 @@
         document.getElementById("highscore").textContent = highScore;
       }
       showGameOver(score);
-      // Ne reset pas immédiatement la partie pour que l'utilisateur voie le score
     }
 
     function showGameOver(score) {
@@ -244,12 +243,8 @@
       nextRound();
     });
 
-    // Boutons start/restart classiques
+    // Bouton start
     document.getElementById("start").onclick = () => {
-      resetGame();
-      nextRound();
-    };
-    document.getElementById("restart").onclick = () => {
       resetGame();
       nextRound();
     };
