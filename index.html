@@ -2,59 +2,67 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mini-Jeux Arcade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jeux Arcade</title>
   <style>
     body {
       margin: 0;
-      background-color: #000;
-      color: #00ffcc;
-      font-family: 'Courier New', monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0d0d0d;
+      color: #fff;
+      text-align: center;
     }
 
     h1 {
+      margin-top: 40px;
       font-size: 3rem;
-      margin-bottom: 50px;
-      text-shadow: 0 0 10px #00ffcc;
+      text-shadow: 0 0 10px #00ffff;
     }
 
-    .btn {
-      background-color: #111;
-      color: #00ffcc;
-      border: 2px solid #00ffcc;
+    .menu {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 60px;
+      gap: 30px;
+    }
+
+    .game-button {
       padding: 20px 40px;
-      margin: 15px;
       font-size: 1.5rem;
-      border-radius: 10px;
+      background-color: #111;
+      border: 2px solid #0ff;
+      color: #0ff;
+      border-radius: 12px;
       cursor: pointer;
+      box-shadow: 0 0 10px #0ff;
       transition: all 0.3s ease;
-      box-shadow: 0 0 10px #00ffcc44;
+      width: 260px;
     }
 
-    .btn:hover {
-      background-color: #00ffcc;
+    .game-button:hover {
+      background-color: #0ff;
       color: #000;
-      box-shadow: 0 0 20px #00ffcc;
+      box-shadow: 0 0 20px #0ff;
     }
 
     footer {
-      position: absolute;
-      bottom: 20px;
-      font-size: 0.8rem;
-      color: #555;
+      margin-top: 80px;
+      font-size: 0.9rem;
+      color: #666;
     }
   </style>
 </head>
 <body>
-  <h1>🎮 Mini-Jeux Arcade</h1>
-  <button class="btn" onclick="location.href='reflexe.html'">⚡ Test de Réflexe</button>
-  <button class="btn" onclick="location.href='simon.html'">🟦 Simon Says</button>
+  <h1>Jeux Arcade</h1>
+  <div class="menu">
+    <a href="reflex.html"><button class="game-button">Test de Réflexe</button></a>
+    <a href="simon.html"><button class="game-button">Simon Says</button></a>
+    <a href="color-connect.html"><button class="game-button">Color Connect</button></a>
+  </div>
 
-  <footer>© 2025 Mini-Jeux</footer>
+  <footer>
+    © 2025 TonSiteJeux. Tous droits réservés.
+  </footer>
 </body>
 </html>
