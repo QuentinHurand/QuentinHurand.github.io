@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simon Says</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 10px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+    .tile {
+      width: 100px;
+      height: 100px;
+      border-radius: 10px;
+      opacity: 0.8;
+      cursor: pointer;
+    }
+    .tile:active {
+      opacity: 1;
+    }
+    .menu-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 8px 16px;
+      font-size: 16px;
+    }
+    #status {
+      font-size: 1.2rem;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <button class="menu-btn" onclick="goToMenu()">Menu</button>
+  <h1>🎶 Simon Says</h1>
+  <div class="grid" id="grid"></div>
+  <div id="status">Clique pour commencer !</div>
+
+  <script>
+    const colors = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'cyan', 'lime', 'pink'];
+    const sounds = {};
+    const grid = document.getElementById('grid');
+    const status = document.getElementById('status');
+
+    let sequence = [];
+    let userIndex = 0;
+    let isPlaying = false;
+
+    // Génère les boutons colorés avec son
+    colors.forEach((color, index) => {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.style.background = color;
+      tile.dataset.index = index;
+      grid.appendChild(tile);
+
+      const oscillator = new (window.AudioContext || window.webkitAudioContext)();
+      const freq = 200 + index * 60;
+      const buffer = oscillator.createOscillator();
+      buffer.frequency.value = freq;
+      sounds[index] = freq;
+
+      tile.addEventListener('click', () => {
+        if (!isPlaying) return;
+        flashTile(index);
+        playSound(index);
+
+        if (parseInt(index) === sequence[userIndex]) {
+          userIndex++;
+          if (userIndex >= sequence.length) {
+            status.textContent = 'Bien joué ! Prochain tour...';
+            setTimeout(nextRound, 1000);
+          }
+        } else {
+          status.textContent = 'Raté ! Clique pour recommencer.';
+          isPlaying = false;
+          sequence = [];
+        }
+      });
+    });
+
+    function playSound(index) {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.frequency.value = sounds[index];
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function flashTile(index) {
+      const tile = grid.children[index];
+      tile.style.opacity = 1;
+      setTimeout(() => {
+        tile.style.opacity = 0.8;
+      }, 300);
+    }
+
+    function playSequence() {
+      let i = 0;
+      isPlaying = false;
+      const interval = setInterval(() => {
+        if (i >= sequence.length) {
+          clearInterval(interval);
+          isPlaying = true;
+          userIndex = 0;
+          return;
+        }
+        flashTile(sequence[i]);
+        playSound(sequence[i]);
+        i++;
+      }, 600);
+    }
+
+    function nextRound() {
+      sequence.push(Math.floor(Math.random() * colors.length));
+      playSequence();
+    }
+
+    grid.addEventListener('click', () => {
+      if (!isPlaying && sequence.length === 0) {
+        status.textContent = 'Regarde la séquence...';
+        nextRound();
+      }
+    });
+
+    function goToMenu() {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
