@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Connect</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #0d0d0d;
+      color: #fff;
+      text-align: center;
+    }
+    h1 {
+      margin: 20px;
+      font-size: 2rem;
+      text-shadow: 0 0 10px #0ff;
+    }
+    #game {
+      display: grid;
+      justify-content: center;
+      margin: 20px auto;
+      gap: 4px;
+    }
+    .cell {
+      width: 40px;
+      height: 40px;
+      background-color: #222;
+      border-radius: 8px;
+      box-shadow: 0 0 8px #111;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .cell.filled {
+      background-color: #0ff;
+      box-shadow: 0 0 12px #0ff;
+    }
+    button {
+      background: black;
+      color: white;
+      border: 1px solid #0ff;
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #0ff;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: #0ff;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <h1>Color Connect</h1>
+  <div id="mode-select">
+    <button onclick="startCampaign()">Mode Campagne</button>
+    <button onclick="startPractice()">Mode Practice</button>
+  </div>
+  <h2 id="level-display"></h2>
+  <div id="game"></div>
+  <button id="next-btn" style="display:none" onclick="nextLevel()">Niveau Suivant</button>
+  <button onclick="location.href='index.html'">Retour au Menu</button>
+
+  <script>
+    const gameDiv = document.getElementById("game");
+    const levelDisplay = document.getElementById("level-display");
+    const nextBtn = document.getElementById("next-btn");
+
+    let currentLevel = 0;
+    let campaign = true;
+
+    const levels = Array.from({length: 30}, (_, i) => ({
+      size: 4 + Math.floor(i / 6),
+      required: 3 + i
+    }));
+
+    function generateGrid(size, filled = 0) {
+      gameDiv.innerHTML = "";
+      gameDiv.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+
+      for (let i = 0; i < size * size; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.onclick = () => {
+          cell.classList.toggle("filled");
+          checkCompletion(size, filled);
+        };
+        gameDiv.appendChild(cell);
+      }
+    }
+
+    function checkCompletion(size, required) {
+      const count = document.querySelectorAll(".cell.filled").length;
+      if (count >= required) nextBtn.style.display = "inline-block";
+      else nextBtn.style.display = "none";
+    }
+
+    function startCampaign() {
+      campaign = true;
+      currentLevel = 0;
+      document.getElementById("mode-select").style.display = "none";
+      loadLevel();
+    }
+
+    function startPractice() {
+      campaign = false;
+      document.getElementById("mode-select").style.display = "none";
+      loadRandom();
+    }
+
+    function loadLevel() {
+      const { size, required } = levels[currentLevel];
+      levelDisplay.textContent = `Niveau ${currentLevel + 1}`;
+      generateGrid(size, required);
+      nextBtn.style.display = "none";
+    }
+
+    function loadRandom() {
+      const size = 4 + Math.floor(Math.random() * 4);
+      const required = size + Math.floor(Math.random() * size);
+      levelDisplay.textContent = `Practice`;
+      generateGrid(size, required);
+      nextBtn.style.display = "none";
+    }
+
+    function nextLevel() {
+      if (campaign) {
+        currentLevel++;
+        if (currentLevel < levels.length) loadLevel();
+        else levelDisplay.textContent = "Campagne terminée !";
+      } else loadRandom();
+    }
+  </script>
+</body>
+</html>
