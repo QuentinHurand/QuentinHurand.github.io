@@ -6,7 +6,7 @@
   <title>Test de Réflexe</title>
   <style>
     body {
-      background-color: #121212;
+      background-color: #000;
       color: #ffffff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
@@ -89,7 +89,7 @@
     }
 
     td {
-      background-color: #222;
+      background-color: #111;
     }
   </style>
 </head>
@@ -120,7 +120,6 @@
     const message = document.getElementById("message");
     const bestTimeSpan = document.getElementById("bestTime");
     const youTimeSpan = document.getElementById("youTime");
-    const gameArea = document.getElementById("gameArea");
 
     let timeout, startTime, gameStarted = false;
 
@@ -171,7 +170,6 @@
           gameStarted = false;
           setTimeout(startGame, 1500);
         } else {
-          // Trop tôt
           clearTimeout(timeout);
           message.textContent = "⛔ Trop tôt ! Attends le carré vert...";
           setTimeout(startGame, 1500);
@@ -179,7 +177,6 @@
       }
     });
 
-    // Lancement
     loadBestScore();
     setTimeout(startGame, 1000);
   </script>
