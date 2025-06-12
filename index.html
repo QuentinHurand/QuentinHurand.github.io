@@ -3,32 +3,58 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mini Jeux</title>
+  <title>Mini-Jeux Arcade</title>
   <style>
     body {
+      margin: 0;
       background-color: #000;
-      color: #fff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #00ffcc;
+      font-family: 'Courier New', monospace;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      margin: 0;
     }
 
     h1 {
       font-size: 3rem;
-      margin-bottom: 40px;
-      color: #00ffcc;
-      text-align: center;
+      margin-bottom: 50px;
+      text-shadow: 0 0 10px #00ffcc;
     }
 
-    .game-button {
-      background-color: #222;
-      color: #fff;
+    .btn {
+      background-color: #111;
+      color: #00ffcc;
       border: 2px solid #00ffcc;
-      border-radius: 12px;
       padding: 20px 40px;
+      margin: 15px;
       font-size: 1.5rem;
+      border-radius: 10px;
       cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px #00ffcc44;
+    }
+
+    .btn:hover {
+      background-color: #00ffcc;
+      color: #000;
+      box-shadow: 0 0 20px #00ffcc;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 20px;
+      font-size: 0.8rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎮 Mini-Jeux Arcade</h1>
+  <button class="btn" onclick="location.href='reflexe.html'">⚡ Test de Réflexe</button>
+  <button class="btn" onclick="location.href='simon.html'">🟦 Simon Says</button>
+
+  <footer>© 2025 Mini-Jeux</footer>
+</body>
+</html>
