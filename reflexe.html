@@ -6,7 +6,7 @@
   <title>Test de Réflexe</title>
   <style>
     body {
-      background-color: #000;
+      background-color: #121212;
       color: #ffffff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
@@ -58,6 +58,7 @@
       position: absolute;
       border-radius: 10px;
       display: none;
+      cursor: pointer;
     }
 
     #score {
@@ -89,14 +90,14 @@
     }
 
     td {
-      background-color: #111;
+      background-color: #222;
     }
   </style>
 </head>
 <body>
   <button id="backMenu" onclick="location.href='index.html'">← Menu</button>
   <h1>⚡ Test de Réflexe</h1>
-  <div id="message">Appuie sur la barre d’espace quand le carré vert apparaît !</div>
+  <div id="message">Clique sur le carré vert dès qu’il apparaît !</div>
   <div id="gameArea">
     <div id="target" class="target"></div>
   </div>
@@ -120,6 +121,7 @@
     const message = document.getElementById("message");
     const bestTimeSpan = document.getElementById("bestTime");
     const youTimeSpan = document.getElementById("youTime");
+    const gameArea = document.getElementById("gameArea");
 
     let timeout, startTime, gameStarted = false;
 
@@ -142,7 +144,7 @@
       target.style.display = "block";
       startTime = Date.now();
       gameStarted = true;
-      message.textContent = "Appuie maintenant !";
+      message.textContent = "Clique vite !";
     }
 
     function startGame() {
@@ -153,27 +155,29 @@
       timeout = setTimeout(showTarget, delay);
     }
 
-    document.addEventListener("keydown", (e) => {
-      if (e.code === "Space") {
-        if (gameStarted) {
-          const reactionTime = Date.now() - startTime;
-          message.textContent = `⏱ Temps de réaction : ${reactionTime} ms`;
+    target.addEventListener("click", () => {
+      if (gameStarted) {
+        const reactionTime = Date.now() - startTime;
+        message.textContent = `⏱ Temps de réaction : ${reactionTime} ms`;
 
-          const best = localStorage.getItem("bestScore_" + pseudo);
-          if (!best || reactionTime < best) {
-            localStorage.setItem("bestScore_" + pseudo, reactionTime);
-            bestTimeSpan.textContent = reactionTime;
-            youTimeSpan.textContent = reactionTime;
-          }
-
-          target.style.display = "none";
-          gameStarted = false;
-          setTimeout(startGame, 1500);
-        } else {
-          clearTimeout(timeout);
-          message.textContent = "⛔ Trop tôt ! Attends le carré vert...";
-          setTimeout(startGame, 1500);
+        const best = localStorage.getItem("bestScore_" + pseudo);
+        if (!best || reactionTime < best) {
+          localStorage.setItem("bestScore_" + pseudo, reactionTime);
+          bestTimeSpan.textContent = reactionTime;
+          youTimeSpan.textContent = reactionTime;
         }
+
+        target.style.display = "none";
+        gameStarted = false;
+        setTimeout(startGame, 1500);
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!gameStarted && e.target !== target) {
+        clearTimeout(timeout);
+        message.textContent = "⛔ Trop tôt ! Attends le carré vert...";
+        setTimeout(startGame, 1500);
       }
     });
 
