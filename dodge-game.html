@@ -1,95 +1,81 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Dodge Neon - Jeu d'évitement</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
-  body {
-    margin: 0; padding: 0;
-    background: #111;
-    color: #0ff;
-    font-family: 'Orbitron', monospace, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-    user-select: none;
-  }
-  h1 {
-    margin: 20px 0 10px;
-    text-shadow: 0 0 10px #0ff;
-  }
-  #game-container {
-    position: relative;
-    background: #000;
-    border: 3px solid #0ff;
-    box-shadow: 0 0 30px #0ff inset;
-    width: 400px;
-    height: 600px;
-    overflow: hidden;
-    border-radius: 12px;
-  }
-  canvas {
-    display: block;
-    background: #111;
-    border-radius: 12px;
-  }
-  #score {
-    margin-top: 12px;
-    font-size: 22px;
-    letter-spacing: 2px;
-    text-shadow: 0 0 8px #0ff;
-  }
-  #game-over-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,255,255,0.1);
-    backdrop-filter: blur(6px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: #0ff;
-    font-size: 28px;
-    font-weight: bold;
-    text-shadow: 0 0 10px #0ff;
-    visibility: hidden;
-    z-index: 10;
-  }
-  #game-over-overlay button {
-    margin-top: 20px;
-    background: transparent;
-    border: 2px solid #0ff;
-    color: #0ff;
-    padding: 10px 24px;
-    font-size: 20px;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: background-color 0.3s, color 0.3s;
-  }
-  #game-over-overlay button:hover {
-    background: #0ff;
-    color: #000;
-  }
-  #btn-back {
-    margin-top: 15px;
-    background: transparent;
-    border: 2px solid #0ff;
-    color: #0ff;
-    padding: 8px 20px;
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: background-color 0.3s, color 0.3s;
-  }
-  #btn-back:hover {
-    background: #0ff;
-    color: #000;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dodge Neon - Jeu d'évitement</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+    body {
+      margin: 0;
+      background: #111;
+      color: #0ff;
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+    }
+    h1 {
+      margin: 20px 0 10px;
+      text-shadow: 0 0 10px #0ff;
+    }
+    #game-container {
+      position: relative;
+      background: #000;
+      border: 3px solid #0ff;
+      box-shadow: 0 0 30px #0ff inset;
+      width: 400px;
+      height: 600px;
+      border-radius: 12px;
+    }
+    canvas {
+      display: block;
+      background: #111;
+      border-radius: 12px;
+    }
+    #score {
+      margin-top: 10px;
+      font-size: 18px;
+      letter-spacing: 2px;
+      display: flex;
+      gap: 30px;
+    }
+    #score div {
+      text-shadow: 0 0 8px #0ff;
+    }
+    #game-over-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,255,255,0.1);
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #0ff;
+      font-size: 28px;
+      font-weight: bold;
+      text-shadow: 0 0 10px #0ff;
+      visibility: hidden;
+      z-index: 10;
+    }
+    #game-over-overlay button {
+      margin-top: 20px;
+      background: transparent;
+      border: 2px solid #0ff;
+      color: #0ff;
+      padding: 10px 24px;
+      font-size: 20px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+    #game-over-overlay button:hover {
+      background: #0ff;
+      color: #000;
+    }
+  </style>
 </head>
 <body>
   <h1>Dodge Neon</h1>
@@ -99,10 +85,13 @@
       <div>GAME OVER</div>
       <div id="final-score" style="margin-top: 10px; font-size: 22px;"></div>
       <button id="restart-btn">Recommencer</button>
-      <button id="btn-back">Retour au choix des modes</button>
+      <button onclick="window.location.href='index.html'">Retour aux modes</button>
     </div>
   </div>
-  <div id="score">Score : 0</div>
+  <div id="score">
+    <div id="current">Score : 0</div>
+    <div id="best">Meilleur : 0</div>
+  </div>
 
 <script>
 (() => {
@@ -111,157 +100,132 @@
   const overlay = document.getElementById('game-over-overlay');
   const finalScoreElem = document.getElementById('final-score');
   const restartBtn = document.getElementById('restart-btn');
-  const backBtn = document.getElementById('btn-back');
-  const scoreDisplay = document.getElementById('score');
+  const scoreDisplay = document.getElementById('current');
+  const bestDisplay = document.getElementById('best');
 
   const WIDTH = canvas.width;
   const HEIGHT = canvas.height;
-
   const PLAYER_SIZE = 30;
   const PLAYER_SPEED = 6;
-
   const OBSTACLE_WIDTH = 40;
   const OBSTACLE_HEIGHT = 20;
 
-  let player = { x: WIDTH / 2 - PLAYER_SIZE/2, y: HEIGHT - PLAYER_SIZE - 20, width: PLAYER_SIZE, height: PLAYER_SIZE, dx: 0 };
-  let obstacles = [];
-  let keys = {};
-  let score = 0;
-  let gameOver = false;
-  let obstacleSpeed = 3;
-  let obstacleSpawnInterval = 1500; // ms
-  let lastSpawn = 0;
-  let lastTime = 0;
+  let player, obstacles, keys, score, best, gameOver;
+  let speed, interval, lastSpawn, lastTime, maxObstacles;
 
-  // Gère les touches
-  window.addEventListener('keydown', e => {
-    keys[e.key.toLowerCase()] = true;
-  });
-  window.addEventListener('keyup', e => {
-    keys[e.key.toLowerCase()] = false;
-  });
+  function initGame() {
+    player = { x: WIDTH / 2 - PLAYER_SIZE/2, y: HEIGHT - PLAYER_SIZE - 20, width: PLAYER_SIZE, height: PLAYER_SIZE, dx: 0 };
+    obstacles = [];
+    keys = {};
+    score = 0;
+    gameOver = false;
+    speed = 3;
+    interval = 1500;
+    lastSpawn = 0;
+    lastTime = 0;
+    maxObstacles = 2;
 
-  function rectsCollide(r1, r2) {
-    return !(r2.x > r1.x + r1.width ||
-             r2.x + r2.width < r1.x ||
-             r2.y > r1.y + r1.height ||
-             r2.y + r2.height < r1.y);
+    best = parseInt(localStorage.getItem('dodge_best') || "0");
+    bestDisplay.textContent = `Meilleur : ${best}`;
+    scoreDisplay.textContent = `Score : 0`;
+    overlay.style.visibility = 'hidden';
   }
 
   function spawnObstacle() {
+    if (obstacles.length >= maxObstacles) return;
     const x = Math.random() * (WIDTH - OBSTACLE_WIDTH);
     obstacles.push({ x, y: -OBSTACLE_HEIGHT, width: OBSTACLE_WIDTH, height: OBSTACLE_HEIGHT });
   }
 
   function update(delta) {
-    if(gameOver) return;
+    if (gameOver) return;
 
-    // Mouvement joueur
-    if(keys['arrowleft'] || keys['a']) player.dx = -PLAYER_SPEED;
-    else if(keys['arrowright'] || keys['d']) player.dx = PLAYER_SPEED;
+    // Mouvements
+    if (keys['arrowleft'] || keys['a']) player.dx = -PLAYER_SPEED;
+    else if (keys['arrowright'] || keys['d']) player.dx = PLAYER_SPEED;
     else player.dx = 0;
-
     player.x += player.dx;
-    if(player.x < 0) player.x = 0;
-    if(player.x + PLAYER_SIZE > WIDTH) player.x = WIDTH - PLAYER_SIZE;
+    player.x = Math.max(0, Math.min(WIDTH - PLAYER_SIZE, player.x));
 
-    // Spawn obstacles régulièrement
+    // Générer obstacle
     lastSpawn += delta;
-    if(lastSpawn > obstacleSpawnInterval) {
+    if (lastSpawn > interval) {
       spawnObstacle();
       lastSpawn = 0;
-
-      // Accélération progressive
-      if(obstacleSpawnInterval > 500) obstacleSpawnInterval -= 15;
-      if(obstacleSpeed < 10) obstacleSpeed += 0.05;
     }
 
-    // Update obstacles position
-    obstacles.forEach(o => {
-      o.y += obstacleSpeed;
-    });
+    // Mise à jour obstacles
+    for (let o of obstacles) o.y += speed;
 
-    // Remove obstacles hors écran + score
+    // Suppression des obstacles sortis + score
     obstacles = obstacles.filter(o => {
-      if(o.y > HEIGHT) {
+      if (o.y > HEIGHT) {
         score++;
         scoreDisplay.textContent = `Score : ${score}`;
+        updateDifficulty(score);
         return false;
       }
       return true;
     });
 
-    // Collision détection
-    for(let o of obstacles) {
-      if(rectsCollide(player, o)) {
+    // Collisions
+    for (let o of obstacles) {
+      if (!(o.x > player.x + player.width || o.x + o.width < player.x || o.y > player.y + player.height || o.y + o.height < player.y)) {
         endGame();
-        break;
       }
     }
   }
 
-  function drawRect(x,y,w,h,color,shadow=false) {
+  function updateDifficulty(score) {
+    if (interval > 500) interval -= 0.5;
+    if (speed < 12) speed += 0.01;
+    maxObstacles = Math.min(10, 2 + Math.floor(score / 10));
+  }
+
+  function drawRect(x, y, w, h, color, glow) {
     ctx.fillStyle = color;
-    if(shadow) {
+    if (glow) {
       ctx.shadowColor = color;
       ctx.shadowBlur = 20;
-    } else {
-      ctx.shadowBlur = 0;
-    }
-    ctx.fillRect(x,y,w,h);
+    } else ctx.shadowBlur = 0;
+    ctx.fillRect(x, y, w, h);
     ctx.shadowBlur = 0;
   }
 
   function draw() {
-    // Background noir
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
-    // Player néon cyan
     drawRect(player.x, player.y, player.width, player.height, '#0ff', true);
-    // Obstacles néon rouge
-    obstacles.forEach(o => drawRect(o.x, o.y, o.width, o.height, '#f00', true));
+    for (let o of obstacles) drawRect(o.x, o.y, o.width, o.height, '#f00', true);
   }
 
-  function loop(timestamp=0) {
-    if(!lastTime) lastTime = timestamp;
-    const delta = timestamp - lastTime;
-    lastTime = timestamp;
-
+  function loop(t = 0) {
+    const delta = t - lastTime;
+    lastTime = t;
     update(delta);
     draw();
-
-    if(!gameOver) requestAnimationFrame(loop);
+    if (!gameOver) requestAnimationFrame(loop);
   }
 
   function endGame() {
     gameOver = true;
+    if (score > best) {
+      best = score;
+      localStorage.setItem('dodge_best', best);
+      bestDisplay.textContent = `Meilleur : ${best}`;
+    }
     finalScoreElem.textContent = `Score final : ${score}`;
     overlay.style.visibility = 'visible';
   }
 
-  function resetGame() {
-    player.x = WIDTH / 2 - PLAYER_SIZE/2;
-    obstacles = [];
-    score = 0;
-    gameOver = false;
-    obstacleSpeed = 3;
-    obstacleSpawnInterval = 1500;
-    lastSpawn = 0;
-    lastTime = 0;
-    scoreDisplay.textContent = `Score : 0`;
-    overlay.style.visibility = 'hidden';
-  }
+  window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
   restartBtn.onclick = () => {
-    resetGame();
+    initGame();
     loop();
   };
 
-  backBtn.onclick = () => {
-    window.location.href = 'index.html'; // ou vers ta page de choix des modes
-  };
-
-  // Démarre le jeu direct
-  resetGame();
+  initGame();
   loop();
 })();
 </script>
