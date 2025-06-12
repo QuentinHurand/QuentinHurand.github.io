@@ -25,6 +25,8 @@
       gap: 10px;
       justify-content: center;
       margin: 20px auto;
+      position: relative;
+      z-index: 1;
     }
     .tile {
       width: 100px;
@@ -60,21 +62,45 @@
       justify-content: center;
       border: 2px dashed #444;
     }
-    #game-over-banner {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #b22222;
+    /* Bandeau game over */
+    #game-over-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 330px; /* 3 tiles * 100px + 2*10px gap */
+      height: 330px; /* idem */
+      background: rgba(50, 50, 50, 0.85);
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       color: white;
-      padding: 15px 30px;
-      font-size: 22px;
+      font-size: 24px;
       font-weight: bold;
-      border-radius: 10px;
-      box-shadow: 0 0 15px 5px #b22222;
-      display: none;
-      z-index: 1000;
+      z-index: 10;
       user-select: none;
+      visibility: hidden;
+      margin: auto;
+      /* center overlay exactly on #game-board */
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 20px 5px #777;
+    }
+    #game-over-overlay button {
+      margin-top: 20px;
+      padding: 10px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: #222;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    #game-over-overlay button:hover {
+      background-color: #555;
     }
   </style>
 </head>
@@ -84,14 +110,19 @@
     <p>Round: <span id="round">0</span></p>
     <p>Meilleur score: <span id="highscore">0</span></p>
   </div>
-  <div id="game-board"></div>
+  <div id="game-board">
+    <!-- Les 9 cases seront créées par JS -->
+    <div id="game-over-overlay">
+      <div id="game-over-text">Game Over !</div>
+      <div id="final-score" style="margin-top:10px; font-size:20px;"></div>
+      <button id="overlay-restart">Recommencer</button>
+    </div>
+  </div>
   <button id="start">Démarrer</button>
   <button id="restart">Recommencer</button>
   <br />
   <a href="index.html"><button>Retour au Menu</button></a>
   <div id="ads">Zone publicitaire</div>
-
-  <div id="game-over-banner"></div>
 
   <script>
     const colors = ["red", "blue", "green", "yellow", "orange", "purple", "cyan", "lime", "pink"];
@@ -117,7 +148,9 @@
     document.getElementById("highscore").textContent = highScore;
 
     const board = document.getElementById("game-board");
-    const gameOverBanner = document.getElementById("game-over-banner");
+    const overlay = document.getElementById("game-over-overlay");
+    const finalScoreElem = document.getElementById("final-score");
+    const overlayRestartBtn = document.getElementById("overlay-restart");
 
     // Création des cases
     colors.forEach((color, i) => {
@@ -145,8 +178,10 @@
     }
 
     function playSound(index) {
-      sounds[index].currentTime = 0;
-      sounds[index].play();
+      const sound = sounds[index];
+      if (!sound) return;
+      sound.currentTime = 0;
+      sound.play();
     }
 
     function nextRound() {
@@ -160,7 +195,7 @@
     function playSequence() {
       acceptingInput = false;
       sequence.forEach((index, i) => {
-        const tile = board.children[index];
+        const tile = board.querySelector(`.tile[data-index="${index}"]`);
         setTimeout(() => {
           flash(tile);
           playSound(index);
@@ -200,15 +235,21 @@
     }
 
     function showGameOver(score) {
-      gameOverBanner.textContent = `Game Over ! Score : ${score}`;
-      gameOverBanner.style.display = "block";
-      setTimeout(hideGameOver, 3000);
+      finalScoreElem.textContent = `Score : ${score}`;
+      overlay.style.visibility = "visible";
     }
 
     function hideGameOver() {
-      gameOverBanner.style.display = "none";
+      overlay.style.visibility = "hidden";
     }
 
+    // Bouton Recommencer dans le bandeau game over
+    overlayRestartBtn.addEventListener("click", () => {
+      resetGame();
+      nextRound();
+    });
+
+    // Boutons classiques start/restart
     document.getElementById("start").onclick = () => {
       resetGame();
       nextRound();
