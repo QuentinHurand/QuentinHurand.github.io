@@ -7,141 +7,159 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      background-color: #111;
+      color: white;
       text-align: center;
-      padding: 20px;
+      margin: 0;
+      padding: 0;
     }
     h1 {
-      margin-bottom: 20px;
+      margin-top: 20px;
     }
-    .grid {
+    #game-board {
       display: grid;
       grid-template-columns: repeat(3, 100px);
-      grid-gap: 10px;
+      grid-template-rows: repeat(3, 100px);
+      gap: 10px;
       justify-content: center;
       margin: 20px auto;
     }
     .tile {
       width: 100px;
       height: 100px;
-      border-radius: 10px;
-      opacity: 0.8;
+      border-radius: 15px;
+      opacity: 0.7;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    .active {
+      opacity: 1 !important;
+      filter: brightness(2);
+    }
+    #info {
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
       cursor: pointer;
     }
-    .tile:active {
-      opacity: 1;
-    }
-    .menu-btn {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      padding: 8px 16px;
-      font-size: 16px;
-    }
-    #status {
-      font-size: 1.2rem;
-      margin-top: 20px;
+    #ads {
+      margin: 30px auto;
+      width: 300px;
+      height: 250px;
+      background-color: #333;
+      color: #aaa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed #444;
     }
   </style>
 </head>
 <body>
-  <button class="menu-btn" onclick="goToMenu()">Menu</button>
-  <h1>🎶 Simon Says</h1>
-  <div class="grid" id="grid"></div>
-  <div id="status">Clique pour commencer !</div>
+  <h1>Simon Says</h1>
+  <div id="info">
+    <p>Round: <span id="round">0</span></p>
+    <p>Meilleur score: <span id="highscore">0</span></p>
+  </div>
+  <div id="game-board"></div>
+  <button id="start">Démarrer</button>
+  <button id="restart">Recommencer</button>
+  <br>
+  <a href="index.html"><button>Retour au Menu</button></a>
+  <div id="ads">Zone publicitaire</div>
 
   <script>
-    const colors = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'cyan', 'lime', 'pink'];
+    const colors = ["red", "blue", "green", "yellow", "orange", "purple", "cyan", "lime", "pink"];
     const sounds = {};
-    const grid = document.getElementById('grid');
-    const status = document.getElementById('status');
-
     let sequence = [];
-    let userIndex = 0;
-    let isPlaying = false;
+    let userSequence = [];
+    let round = 0;
+    let acceptingInput = false;
+    let highScore = localStorage.getItem("simonHighScore") || 0;
 
-    // Génère les boutons colorés avec son
-    colors.forEach((color, index) => {
-      const tile = document.createElement('div');
-      tile.className = 'tile';
-      tile.style.background = color;
-      tile.dataset.index = index;
-      grid.appendChild(tile);
+    document.getElementById("highscore").textContent = highScore;
 
-      const oscillator = new (window.AudioContext || window.webkitAudioContext)();
-      const freq = 200 + index * 60;
-      const buffer = oscillator.createOscillator();
-      buffer.frequency.value = freq;
-      sounds[index] = freq;
+    const board = document.getElementById("game-board");
 
-      tile.addEventListener('click', () => {
-        if (!isPlaying) return;
-        flashTile(index);
-        playSound(index);
+    colors.forEach((color, i) => {
+      const tile = document.createElement("div");
+      tile.classList.add("tile");
+      tile.style.backgroundColor = color;
+      tile.dataset.index = i;
+      board.appendChild(tile);
 
-        if (parseInt(index) === sequence[userIndex]) {
-          userIndex++;
-          if (userIndex >= sequence.length) {
-            status.textContent = 'Bien joué ! Prochain tour...';
-            setTimeout(nextRound, 1000);
-          }
-        } else {
-          status.textContent = 'Raté ! Clique pour recommencer.';
-          isPlaying = false;
-          sequence = [];
-        }
+      const audio = new Audio(`https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg`);
+      sounds[i] = audio;
+
+      tile.addEventListener("click", () => {
+        if (!acceptingInput) return;
+        flash(tile);
+        playSound(i);
+        userSequence.push(i);
+        checkUserInput();
       });
     });
 
+    function flash(tile) {
+      tile.classList.add("active");
+      setTimeout(() => tile.classList.remove("active"), 400);
+    }
+
     function playSound(index) {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-      oscillator.frequency.value = sounds[index];
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.3);
-    }
-
-    function flashTile(index) {
-      const tile = grid.children[index];
-      tile.style.opacity = 1;
-      setTimeout(() => {
-        tile.style.opacity = 0.8;
-      }, 300);
-    }
-
-    function playSequence() {
-      let i = 0;
-      isPlaying = false;
-      const interval = setInterval(() => {
-        if (i >= sequence.length) {
-          clearInterval(interval);
-          isPlaying = true;
-          userIndex = 0;
-          return;
-        }
-        flashTile(sequence[i]);
-        playSound(sequence[i]);
-        i++;
-      }, 600);
+      sounds[index].currentTime = 0;
+      sounds[index].play();
     }
 
     function nextRound() {
-      sequence.push(Math.floor(Math.random() * colors.length));
+      round++;
+      document.getElementById("round").textContent = round;
+      userSequence = [];
+      sequence.push(Math.floor(Math.random() * 9));
       playSequence();
     }
 
-    grid.addEventListener('click', () => {
-      if (!isPlaying && sequence.length === 0) {
-        status.textContent = 'Regarde la séquence...';
-        nextRound();
-      }
-    });
-
-    function goToMenu() {
-      window.location.href = 'index.html';
+    function playSequence() {
+      acceptingInput = false;
+      sequence.forEach((index, i) => {
+        const tile = board.children[index];
+        setTimeout(() => {
+          flash(tile);
+          playSound(index);
+          if (i === sequence.length - 1) acceptingInput = true;
+        }, 600 * i);
+      });
     }
+
+    function checkUserInput() {
+      const i = userSequence.length - 1;
+      if (userSequence[i] !== sequence[i]) {
+        alert("Faux ! Score: " + round);
+        if (round > highScore) {
+          localStorage.setItem("simonHighScore", round);
+          document.getElementById("highscore").textContent = round;
+        }
+        resetGame();
+        return;
+      }
+      if (userSequence.length === sequence.length) {
+        setTimeout(nextRound, 1000);
+      }
+    }
+
+    function resetGame() {
+      round = 0;
+      sequence = [];
+      userSequence = [];
+      document.getElementById("round").textContent = round;
+    }
+
+    document.getElementById("start").onclick = nextRound;
+    document.getElementById("restart").onclick = () => {
+      resetGame();
+      nextRound();
+    };
   </script>
 </body>
 </html>
