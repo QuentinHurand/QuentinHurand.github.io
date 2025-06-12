@@ -29,11 +29,11 @@
       height: 100px;
       border-radius: 15px;
       opacity: 0.7;
-      transition: background 0.2s, opacity 0.2s;
+      transition: background 0.2s, opacity 0.2s, filter 0.2s;
     }
     .active {
       opacity: 1 !important;
-      filter: brightness(2);
+      filter: brightness(2.5) saturate(2);
     }
     #info {
       margin-top: 20px;
@@ -72,6 +72,18 @@
 
   <script>
     const colors = ["red", "blue", "green", "yellow", "orange", "purple", "cyan", "lime", "pink"];
+    const soundUrls = [
+      "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
+    ];
+
     const sounds = {};
     let sequence = [];
     let userSequence = [];
@@ -90,7 +102,7 @@
       tile.dataset.index = i;
       board.appendChild(tile);
 
-      const audio = new Audio(`https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg`);
+      const audio = new Audio(soundUrls[i]);
       sounds[i] = audio;
 
       tile.addEventListener("click", () => {
