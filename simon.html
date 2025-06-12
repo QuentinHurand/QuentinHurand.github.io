@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Simon Says</title>
   <style>
     body {
@@ -12,6 +12,8 @@
       text-align: center;
       margin: 0;
       padding: 0;
+      position: relative;
+      min-height: 100vh;
     }
     h1 {
       margin-top: 20px;
@@ -29,11 +31,14 @@
       height: 100px;
       border-radius: 15px;
       opacity: 0.7;
-      transition: background 0.2s, opacity 0.2s, filter 0.2s;
+      transition: background 0.2s, opacity 0.2s, filter 0.2s, box-shadow 0.2s;
+      cursor: pointer;
     }
     .active {
       opacity: 1 !important;
-      filter: brightness(2.5) saturate(2);
+      filter: brightness(0.6) saturate(1.5);
+      box-shadow: 0 0 15px 5px white;
+      border: 3px solid white;
     }
     #info {
       margin-top: 20px;
@@ -55,6 +60,22 @@
       justify-content: center;
       border: 2px dashed #444;
     }
+    #game-over-banner {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #b22222;
+      color: white;
+      padding: 15px 30px;
+      font-size: 22px;
+      font-weight: bold;
+      border-radius: 10px;
+      box-shadow: 0 0 15px 5px #b22222;
+      display: none;
+      z-index: 1000;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
@@ -66,9 +87,11 @@
   <div id="game-board"></div>
   <button id="start">Démarrer</button>
   <button id="restart">Recommencer</button>
-  <br>
+  <br />
   <a href="index.html"><button>Retour au Menu</button></a>
   <div id="ads">Zone publicitaire</div>
+
+  <div id="game-over-banner"></div>
 
   <script>
     const colors = ["red", "blue", "green", "yellow", "orange", "purple", "cyan", "lime", "pink"];
@@ -76,12 +99,12 @@
       "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg",
       "https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg",
       "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
-      "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg",
-      "https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/pop.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/metal_thud.ogg",
       "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
       "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg",
       "https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg",
-      "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
+      "https://actions.google.com/sounds/v1/cartoon/pop.ogg"
     ];
 
     const sounds = {};
@@ -89,12 +112,14 @@
     let userSequence = [];
     let round = 0;
     let acceptingInput = false;
-    let highScore = localStorage.getItem("simonHighScore") || 0;
+    let highScore = parseInt(localStorage.getItem("simonHighScore")) || 0;
 
     document.getElementById("highscore").textContent = highScore;
 
     const board = document.getElementById("game-board");
+    const gameOverBanner = document.getElementById("game-over-banner");
 
+    // Création des cases
     colors.forEach((color, i) => {
       const tile = document.createElement("div");
       tile.classList.add("tile");
@@ -140,19 +165,14 @@
           flash(tile);
           playSound(index);
           if (i === sequence.length - 1) acceptingInput = true;
-        }, 600 * i);
+        }, 700 * i);
       });
     }
 
     function checkUserInput() {
       const i = userSequence.length - 1;
       if (userSequence[i] !== sequence[i]) {
-        alert("Faux ! Score: " + round);
-        if (round > highScore) {
-          localStorage.setItem("simonHighScore", round);
-          document.getElementById("highscore").textContent = round;
-        }
-        resetGame();
+        gameOver(round);
         return;
       }
       if (userSequence.length === sequence.length) {
@@ -165,9 +185,34 @@
       sequence = [];
       userSequence = [];
       document.getElementById("round").textContent = round;
+      hideGameOver();
     }
 
-    document.getElementById("start").onclick = nextRound;
+    function gameOver(score) {
+      acceptingInput = false;
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem("simonHighScore", highScore);
+        document.getElementById("highscore").textContent = highScore;
+      }
+      showGameOver(score);
+      resetGame();
+    }
+
+    function showGameOver(score) {
+      gameOverBanner.textContent = `Game Over ! Score : ${score}`;
+      gameOverBanner.style.display = "block";
+      setTimeout(hideGameOver, 3000);
+    }
+
+    function hideGameOver() {
+      gameOverBanner.style.display = "none";
+    }
+
+    document.getElementById("start").onclick = () => {
+      resetGame();
+      nextRound();
+    };
     document.getElementById("restart").onclick = () => {
       resetGame();
       nextRound();
