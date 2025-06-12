@@ -3,66 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Menu Mini-Jeux</title>
+  <title>Mini Jeux</title>
   <style>
     body {
+      background-color: #000;
+      color: #fff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #121212;
-      color: #ffffff;
-      text-align: center;
-      padding: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
     }
 
     h1 {
-      font-size: 2.5rem;
+      font-size: 3rem;
       margin-bottom: 40px;
       color: #00ffcc;
+      text-align: center;
     }
 
-    button {
-      display: block;
-      margin: 20px auto;
-      padding: 15px 40px;
-      font-size: 1.4rem;
-      cursor: pointer;
-      border: none;
+    .game-button {
+      background-color: #222;
+      color: #fff;
+      border: 2px solid #00ffcc;
       border-radius: 12px;
-      background-color: #1e90ff;
-      color: white;
-      transition: background 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    button:hover {
-      background-color: #00bfff;
-    }
-
-    .footer {
-      margin-top: 60px;
-      font-size: 0.9rem;
-      color: #888;
-    }
-  </style>
-</head>
-<body>
-  <h1>🎮 Bienvenue sur Mini-Jeux</h1>
-
-  <button onclick="location.href='reflexe.html'">⚡ Test de Réflexe</button>
-  <button onclick="location.href='simon.html'">🟦 Simon Says</button>
-
-  <div class="footer">© 2025 - Mini-Jeux. Tous droits réservés.</div>
-
-  <script>
-    // Si tu veux stocker un pseudo global à réutiliser
-    window.onload = () => {
-      const pseudo = localStorage.getItem("globalPseudo");
-      if (!pseudo) {
-        const nom = prompt("Quel est ton pseudo ?");
-        if (nom) {
-          localStorage.setItem("globalPseudo", nom);
-        }
-      }
-    }
-  </script>
-</body>
-</html>
+      padding: 20px 40px;
+      font-size: 1.5rem;
+      cursor: pointer;
