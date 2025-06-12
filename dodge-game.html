@@ -162,11 +162,12 @@
       if (o.y > HEIGHT) {
         score++;
         scoreDisplay.textContent = `Score : ${score}`;
-        updateDifficulty(score);
-        return false;
-      }
-      return true;
-    });
+        function updateDifficulty(score) {
+  speed = 3 + score * 0.3;
+  interval = Math.max(300, 1500 - score * 50);
+  maxObstacles = Math.min(25, 2 + Math.floor(score / 2));
+}
+
 
     // Collisions
     for (let o of obstacles) {
