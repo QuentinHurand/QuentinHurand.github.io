@@ -9,46 +9,8 @@
       background-color: #121212;
       color: #ffffff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
       margin: 0;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 20px;
-      color: #00ffcc;
-    }
-
-    #message {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      color: #ffd700;
-    }
-
-    #startButton {
-      padding: 15px 30px;
-      font-size: 1.5rem;
-      background-color: #1e90ff;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    #startButton:hover {
-      background-color: #00bfff;
-    }
-
-    #score {
-      margin-top: 30px;
-      font-size: 1.2rem;
-      color: #aaa;
+      overflow: hidden;
     }
 
     #backMenu {
@@ -62,75 +24,164 @@
       padding: 10px 15px;
       font-size: 1rem;
       cursor: pointer;
+      z-index: 10;
     }
 
     #backMenu:hover {
       background-color: #444;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      margin-top: 30px;
+      color: #00ffcc;
+    }
+
+    #message {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-top: 10px;
+      color: #ffd700;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 100vw;
+      height: 70vh;
+    }
+
+    .target {
+      width: 80px;
+      height: 80px;
+      background-color: green;
+      position: absolute;
+      border-radius: 10px;
+      display: none;
+    }
+
+    #score {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-top: 20px;
+      color: #ccc;
+    }
+
+    #leaderboard {
+      margin-top: 30px;
+      text-align: center;
+      color: #aaa;
+    }
+
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      color: #fff;
+    }
+
+    th, td {
+      border: 1px solid #666;
+      padding: 10px 20px;
+    }
+
+    th {
+      background-color: #333;
+    }
+
+    td {
+      background-color: #222;
     }
   </style>
 </head>
 <body>
   <button id="backMenu" onclick="location.href='index.html'">← Menu</button>
   <h1>⚡ Test de Réflexe</h1>
-  <div id="message">Clique sur le bouton quand il devient vert !</div>
-  <button id="startButton" disabled>En attente...</button>
+  <div id="message">Appuie sur la barre d’espace quand le carré vert apparaît !</div>
+  <div id="gameArea">
+    <div id="target" class="target"></div>
+  </div>
   <div id="score">Ton meilleur temps : <span id="bestTime">-</span> ms</div>
+
+  <div id="leaderboard">
+    <h2>🏆 Classement</h2>
+    <table>
+      <tr><th>Position</th><th>Pseudo</th><th>Temps</th></tr>
+      <tr><td>1</td><td>Speedy</td><td>115 ms</td></tr>
+      <tr><td>2</td><td>Flash</td><td>121 ms</td></tr>
+      <tr><td>3</td><td>Toi</td><td><span id="youTime">-</span> ms</td></tr>
+      <tr><td>4</td><td>Clicky</td><td>134 ms</td></tr>
+      <tr><td>5</td><td>Turtle</td><td>151 ms</td></tr>
+    </table>
+  </div>
 
   <script>
     const pseudo = "Toi";
-    const startButton = document.getElementById("startButton");
+    const target = document.getElementById("target");
     const message = document.getElementById("message");
     const bestTimeSpan = document.getElementById("bestTime");
+    const youTimeSpan = document.getElementById("youTime");
+    const gameArea = document.getElementById("gameArea");
 
-    let startTime;
-    let timeout;
+    let timeout, startTime, gameStarted = false;
 
     function loadBestScore() {
       const best = localStorage.getItem("bestScore_" + pseudo);
       if (best) {
         bestTimeSpan.textContent = best;
+        youTimeSpan.textContent = best;
       } else {
         bestTimeSpan.textContent = "-";
+        youTimeSpan.textContent = "-";
       }
     }
 
-    function setRandomDelay() {
-      const delay = Math.floor(Math.random() * 5000) + 2000; // 2 à 7 secondes
-      startButton.disabled = true;
-      startButton.style.backgroundColor = "#1e90ff";
+    function showTarget() {
+      const x = Math.random() * (window.innerWidth - 100);
+      const y = Math.random() * (window.innerHeight * 0.7 - 100);
+      target.style.left = `${x}px`;
+      target.style.top = `${y}px`;
+      target.style.display = "block";
+      startTime = Date.now();
+      gameStarted = true;
+      message.textContent = "Appuie maintenant !";
+    }
+
+    function startGame() {
+      target.style.display = "none";
+      gameStarted = false;
       message.textContent = "Prépare-toi...";
-
-      timeout = setTimeout(() => {
-        startButton.disabled = false;
-        startButton.textContent = "Clique !";
-        startButton.style.backgroundColor = "green";
-        startTime = Date.now();
-      }, delay);
+      const delay = Math.random() * 3000 + 2000; // entre 2 et 5 sec
+      timeout = setTimeout(showTarget, delay);
     }
 
-    startButton.addEventListener("click", () => {
-      if (startButton.disabled) return;
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        if (gameStarted) {
+          const reactionTime = Date.now() - startTime;
+          message.textContent = `⏱ Temps de réaction : ${reactionTime} ms`;
 
-      const reactionTime = Date.now() - startTime;
-      message.textContent = `⏱ Temps de réaction : ${reactionTime} ms`;
+          const best = localStorage.getItem("bestScore_" + pseudo);
+          if (!best || reactionTime < best) {
+            localStorage.setItem("bestScore_" + pseudo, reactionTime);
+            bestTimeSpan.textContent = reactionTime;
+            youTimeSpan.textContent = reactionTime;
+          }
 
-      // Meilleur score
-      const best = localStorage.getItem("bestScore_" + pseudo);
-      if (!best || reactionTime < best) {
-        localStorage.setItem("bestScore_" + pseudo, reactionTime);
-        bestTimeSpan.textContent = reactionTime;
+          target.style.display = "none";
+          gameStarted = false;
+          setTimeout(startGame, 1500);
+        } else {
+          // Trop tôt
+          clearTimeout(timeout);
+          message.textContent = "⛔ Trop tôt ! Attends le carré vert...";
+          setTimeout(startGame, 1500);
+        }
       }
-
-      // Prépare la prochaine tentative
-      startButton.textContent = "En attente...";
-      startButton.disabled = true;
-      startButton.style.backgroundColor = "#1e90ff";
-      setTimeout(setRandomDelay, 2000);
     });
 
-    // Lancement initial
+    // Lancement
     loadBestScore();
-    setTimeout(setRandomDelay, 1000);
+    setTimeout(startGame, 1000);
   </script>
 </body>
 </html>
