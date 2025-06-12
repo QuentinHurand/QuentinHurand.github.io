@@ -134,10 +134,6 @@
 
     highscoreSpan.textContent = highScore;
 
-    // Tableau qui contiendra les indices des sons assignés aux cases pour la partie en cours
-    let assignedSounds = [];
-
-    // Création des cases
     colors.forEach((color, i) => {
       const tile = document.createElement("div");
       tile.classList.add("tile");
@@ -154,32 +150,15 @@
       });
     });
 
-    // Mélange un tableau (Fisher-Yates)
-    function shuffle(array) {
-      for (let i = array.length -1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i+1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
     function flash(tile) {
       tile.classList.add("active");
       setTimeout(() => tile.classList.remove("active"), 400);
     }
 
-    // Joue le son assigné à la case
-    function playSound(tileIndex) {
-      const soundIndex = assignedSounds[tileIndex];
-      const sound = new Audio(soundUrls[soundIndex]);
+    // IMPORTANT: Crée un nouvel Audio à chaque appel pour éviter les blocages
+    function playSound(index) {
+      const sound = new Audio(soundUrls[index]);
       sound.play();
-    }
-
-    // Commence une nouvelle partie en assignant un son à chaque case
-    function startNewGame() {
-      assignedSounds = shuffle([...Array(soundUrls.length).keys()]); // Mélange les indices 0 à 8
-      resetGame();
-      nextRound();
     }
 
     function nextRound() {
@@ -237,11 +216,13 @@
     }
 
     document.getElementById("start").onclick = () => {
-      startNewGame();
+      resetGame();
+      nextRound();
     };
 
     gameOverRestartBtn.onclick = () => {
-      startNewGame();
+      resetGame();
+      nextRound();
     };
   </script>
 </body>
