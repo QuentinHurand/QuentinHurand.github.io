@@ -24,23 +24,18 @@
       gap: 10px;
       justify-content: center;
       margin: 20px auto;
-      width: 330px; /* 3*100 + 2*10 gap */
-      height: 330px;
     }
     .tile {
       width: 100px;
       height: 100px;
       border-radius: 15px;
       opacity: 0.7;
-      transition: background 0.2s, opacity 0.2s, filter 0.2s, box-shadow 0.3s;
+      transition: background 0.2s, opacity 0.2s, filter 0.2s;
       cursor: pointer;
-      user-select: none;
     }
     .active {
       opacity: 1 !important;
-      filter: brightness(0.4) saturate(1.8);
-      box-shadow: 0 0 20px 6px white;
-      border: 2px solid white;
+      filter: brightness(3) saturate(2);
     }
     #info {
       margin-top: 20px;
@@ -62,38 +57,38 @@
       justify-content: center;
       border: 2px dashed #444;
     }
-    /* Bandeau game over */
-    #game-over-overlay {
+    /* Bandeau Game Over */
+    #game-over-banner {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(50, 50, 50, 0.85);
-      border-radius: 15px;
+      top: 0;
+      left: 0;
+      width: calc(100% + 20px); /* to cover grid + gaps */
+      height: calc(100% + 20px);
+      background: rgba(100, 100, 100, 0.85);
+      color: white;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      color: white;
-      font-size: 26px;
-      font-weight: bold;
+      border-radius: 15px;
+      font-size: 1.8rem;
       z-index: 10;
+      gap: 20px;
       user-select: none;
       visibility: hidden;
     }
-    #game-over-overlay button {
-      margin-top: 20px;
-      padding: 12px 30px;
-      font-size: 18px;
-      border: none;
-      border-radius: 8px;
-      background-color: #222;
+    #game-over-banner button {
+      background: #222;
+      border: 2px solid white;
       color: white;
+      border-radius: 10px;
+      padding: 10px 25px;
+      font-size: 1.2rem;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color 0.3s ease;
     }
-    #game-over-overlay button:hover {
-      background-color: #555;
+    #game-over-banner button:hover {
+      background-color: #444;
     }
   </style>
 </head>
@@ -103,69 +98,84 @@
     <p>Round: <span id="round">0</span></p>
     <p>Meilleur score: <span id="highscore">0</span></p>
   </div>
-  <div id="game-board">
-    <!-- Les 9 cases seront générées ici -->
-    <div id="game-over-overlay">
-      <div>Game Over !</div>
-      <div id="final-score" style="margin-top: 10px; font-size: 20px;"></div>
-      <button id="overlay-restart">Recommencer</button>
-    </div>
-  </div>
+  <div id="game-board"></div>
   <button id="start">Démarrer</button>
   <br />
   <a href="index.html"><button>Retour au Menu</button></a>
   <div id="ads">Zone publicitaire</div>
 
-  <script>
-    const colors = ["red", "blue", "green", "yellow", "orange", "purple", "cyan", "lime", "pink"];
+  <div id="game-over-banner">
+    <div id="game-over-text">Game Over! Score: 0</div>
+    <button id="game-over-restart">Recommencer</button>
+  </div>
 
-    // 9 sons distincts, différents URLs bien répartis et variés
+  <script>
+    const colors = [
+      "red",
+      "blue",
+      "green",
+      "yellow",
+      "orange",
+      "purple",
+      "cyan",
+      "lime",
+      "pink",
+    ];
+
+    // 9 sons différents bien distincts
     const soundUrls = [
       "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg",
       "https://actions.google.com/sounds/v1/cartoon/concussive_drum_hit.ogg",
       "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
-      "https://actions.google.com/sounds/v1/cartoon/pop.ogg",
-      "https://actions.google.com/sounds/v1/cartoon/metal_thud.ogg",
-      "https://actions.google.com/sounds/v1/cartoon/robot_blip.ogg",
       "https://actions.google.com/sounds/v1/cartoon/slide_whistle_to_drum_hit.ogg",
-      "https://actions.google.com/sounds/v1/cartoon/swish.ogg",
-      "https://actions.google.com/sounds/v1/cartoon/clang.ogg"
+      "https://actions.google.com/sounds/v1/cartoon/boing.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/pop.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/metal_twang.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/high_tone_buzzer.ogg",
+      "https://actions.google.com/sounds/v1/cartoon/wobble.ogg",
     ];
 
-    const sounds = {};
     let sequence = [];
     let userSequence = [];
     let round = 0;
     let acceptingInput = false;
-    let highScore = parseInt(localStorage.getItem("simonHighScore")) || 0;
+    let highScore = localStorage.getItem("simonHighScore") || 0;
 
     document.getElementById("highscore").textContent = highScore;
 
     const board = document.getElementById("game-board");
-    const overlay = document.getElementById("game-over-overlay");
-    const finalScoreElem = document.getElementById("final-score");
-    const overlayRestartBtn = document.getElementById("overlay-restart");
 
-    // Création des 9 cases + sons
-    colors.forEach((color, i) => {
-      const tile = document.createElement("div");
-      tile.classList.add("tile");
-      tile.style.backgroundColor = color;
-      tile.dataset.index = i;
-      board.appendChild(tile);
+    // Crée 9 tiles + initialise tableau de sons assignés (index -> Audio)
+    const tiles = [];
+    let assignedSounds = [];
 
-      // Charge et stocke l'audio
-      const audio = new Audio(soundUrls[i]);
-      sounds[i] = audio;
+    function shuffle(array) {
+      // Mélange Fisher-Yates
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
 
-      tile.addEventListener("click", () => {
-        if (!acceptingInput) return;
-        flash(tile);
-        playSound(i);
-        userSequence.push(i);
-        checkUserInput();
-      });
-    });
+    function setupBoard() {
+      board.innerHTML = "";
+      tiles.length = 0;
+      for (let i = 0; i < colors.length; i++) {
+        const tile = document.createElement("div");
+        tile.classList.add("tile");
+        tile.style.backgroundColor = colors[i];
+        tile.dataset.index = i;
+        board.appendChild(tile);
+        tiles.push(tile);
+      }
+    }
+
+    function assignSounds() {
+      // Mélange les sons pour attribuer un son unique par case
+      const shuffledSounds = shuffle([...soundUrls]);
+      assignedSounds = shuffledSounds.map((url) => new Audio(url));
+    }
 
     function flash(tile) {
       tile.classList.add("active");
@@ -173,10 +183,10 @@
     }
 
     function playSound(index) {
-      const sound = sounds[index];
-      if (!sound) return;
-      sound.currentTime = 0;
-      sound.play();
+      const audio = assignedSounds[index];
+      if (!audio) return;
+      audio.currentTime = 0;
+      audio.play();
     }
 
     function nextRound() {
@@ -190,19 +200,25 @@
     function playSequence() {
       acceptingInput = false;
       sequence.forEach((index, i) => {
-        const tile = board.querySelector(`.tile[data-index="${index}"]`);
         setTimeout(() => {
-          flash(tile);
+          flash(tiles[index]);
           playSound(index);
           if (i === sequence.length - 1) acceptingInput = true;
-        }, 700 * i);
+        }, 600 * i);
       });
     }
 
     function checkUserInput() {
       const i = userSequence.length - 1;
       if (userSequence[i] !== sequence[i]) {
-        gameOver(round);
+        // Game Over: affiche bandeau avec score
+        showGameOver();
+        // MAJ highscore si besoin
+        if (round > highScore) {
+          localStorage.setItem("simonHighScore", round);
+          document.getElementById("highscore").textContent = round;
+        }
+        resetGame();
         return;
       }
       if (userSequence.length === sequence.length) {
@@ -215,39 +231,37 @@
       sequence = [];
       userSequence = [];
       document.getElementById("round").textContent = round;
-      hideGameOver();
     }
 
-    function gameOver(score) {
+    function showGameOver() {
+      const banner = document.getElementById("game-over-banner");
+      const text = document.getElementById("game-over-text");
+      text.textContent = `Game Over! Score: ${round}`;
+      banner.style.visibility = "visible";
       acceptingInput = false;
-      if (score > highScore) {
-        highScore = score;
-        localStorage.setItem("simonHighScore", highScore);
-        document.getElementById("highscore").textContent = highScore;
-      }
-      showGameOver(score);
-    }
-
-    function showGameOver(score) {
-      finalScoreElem.textContent = `Score : ${score}`;
-      overlay.style.visibility = "visible";
     }
 
     function hideGameOver() {
-      overlay.style.visibility = "hidden";
+      const banner = document.getElementById("game-over-banner");
+      banner.style.visibility = "hidden";
     }
 
-    // Recommencer depuis le bandeau
-    overlayRestartBtn.addEventListener("click", () => {
-      resetGame();
-      nextRound();
-    });
-
-    // Bouton start
     document.getElementById("start").onclick = () => {
+      hideGameOver();
       resetGame();
+      assignSounds();
       nextRound();
     };
+
+    document.getElementById("game-over-restart").onclick = () => {
+      hideGameOver();
+      resetGame();
+      assignSounds();
+      nextRound();
+    };
+
+    // Setup initial board
+    setupBoard();
   </script>
 </body>
 </html>
